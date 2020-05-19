@@ -42,18 +42,8 @@ let angleStep = 0.5;
 
 function setup() {
 	let canvas = createCanvas(windowWidth, windowHeight);
-	// let x = (windowWidth - width) / 2;
-	// let y = (windowHeight - height) / 2;
-	// canvas.position(x, y);
 	canvas.parent("#sketch");
 	
-	// mouseUseBtn = createButton(mouseType);
-	// mouseUseBtn.mousePressed(function() {
-	//   if (mouseType == 'DRAG')
-	//     mouseType = 'CREATE';
-	//   else if (mouseType == 'CREATE')
-	//     mouseType = 'DRAG';
-	// });
 	let settingsCont = createDiv().addClass('settings-container').parent('sketch');
 	settingsCont.mouseOver(function() {
 		mouseInsideSketch = false;
@@ -247,38 +237,36 @@ function getParticleAt(x, y) {
 	let cy = floor(y / GRID_SIZE);
 	
 	for (let x0 = cx - 1; x0 < cx + 1; x0++) {
-	for (let y0 = cy - 1; y0 < cy + 1; y0++) {
-		if (x0 < 0 || x0 >= grid_w || y0 < 0 || y0 >= grid_h)
-		continue;
-		let cell = grid[x0 + y0 * grid_w];
-		for (let i = 0; i < cell.length; i++) {
-		let pDistX = (cell[i].x - x);
-		let pDistY = (cell[i].y - y);
-		if (pDistX * pDistX + pDistY * pDistY < dragDist)
-			return cell[i];
+		for (let y0 = cy - 1; y0 < cy + 1; y0++) {
+			if (x0 < 0 || x0 >= grid_w || y0 < 0 || y0 >= grid_h)
+				continue;
+			let cell = grid[x0 + y0 * grid_w];
+			for (let i = 0; i < cell.length; i++) {
+				let pDistX = (cell[i].x - x);
+				let pDistY = (cell[i].y - y);
+				if (pDistX * pDistX + pDistY * pDistY < dragDist)
+					return cell[i];
+			}
 		}
-	}
 	}
 	return null;
 }
 
 function updateParticles() {
 	for (let i = 0; i < particles.length; i++) {
-	let p = particles[i];
-	let old_x = p.x;
-	let old_y = p.y;
-	
-	if (p.invmass > 0) {
-		p.x += gravity.x;
-		p.y += gravity.y;
-	
-		p.x += (p.x - p.px);
-		p.y += (p.y - p.py);
-	}
-	
-	p.px = old_x;
-	p.py = old_y;
-	
+		let p = particles[i];
+		let old_x = p.x;
+		let old_y = p.y;
+		
+		if (p.invmass > 0) {
+			p.x += gravity.x;
+			p.y += gravity.y;
+		
+			p.x += (p.x - p.px);
+			p.y += (p.y - p.py);
+		}
+		p.px = old_x;
+		p.py = old_y;
 	}
 }
 
@@ -288,6 +276,7 @@ function updateConstraints() {
 		let c = constraints[i];
 		if (!c.p1 || !c.p2)
 			continue;
+		
 		let dx = c.p1.x - c.p2.x;
 		let dy = c.p1.y - c.p2.y;
 		if (dx == 0 && dy == 0) {
@@ -297,13 +286,13 @@ function updateConstraints() {
 		
 		// let d = Math.sqrt((dx * dx) + (dy * dy));
 		// if (!c.pushing && d < c.l)
-		// if (c.canTear && dSq > c.tearStr) {
+		// 	continue;
+		// if (c.canTear && d > c.tearStr) {
 		// 	constraints[i] = constraints[constraints.length - 1];
 		// 	i--;
-		// constraints.pop();
+		// 	constraints.pop();
 		// 	continue;
 		// }
-		//   continue;
 		// let percent = ((d - c.l) *
 		//                (c.p1.invmass + c.p2.invmass)) /
 		//                d;
@@ -398,28 +387,28 @@ function createTriangle(x, y, size) {
 
 function createClothSim() {
 	for (let y = 0; y < clothHeight; y += 1) {
-	for (let x = 0; x < clothWidth; x += 1) {
-		let p = new Particle(x * clothSpacing + clothXMargin,
-							y + 50);
-		p.px += random() * 5 - 2.5;
-		
-		if (x > 0) {
-		constraints.push(new Constraint(
-			particles[x - 1 + y * clothWidth],
-			p,
-			clothConstraintLength, false));
+		for (let x = 0; x < clothWidth; x += 1) {
+			let p = new Particle(x * clothSpacing + clothXMargin,
+								y + 50);
+			p.px += random() * 5 - 2.5;
+			
+			if (x > 0) {
+			constraints.push(new Constraint(
+				particles[x - 1 + y * clothWidth],
+				p,
+				clothConstraintLength, false));
+			}
+			if (y > 0) {
+			constraints.push(new Constraint(
+				particles[x + (y - 1) * clothWidth],
+				p,
+				clothConstraintLength, false));
+			} else {
+				if (y == 0 && x % clothAttachPoints == 0)
+					p.invmass = 0;
+			}
+			particles.push(p);
 		}
-		if (y > 0) {
-		constraints.push(new Constraint(
-			particles[x + (y - 1) * clothWidth],
-			p,
-			clothConstraintLength, false));
-		} else {
-		if (y == 0 && x % clothAttachPoints == 0)
-			p.invmass = 0;
-		}
-		particles.push(p);
-	}
 	}
 }
 
@@ -427,37 +416,36 @@ function createClothSim() {
 function createSpiderWebSim() {
 	let angleStep = TWO_PI / webPoints;
 	for (let i = 0; i < webPoints; i++) {
-	for (let j = 0; j < webRings; j++) {
-		let a = i * angleStep;
-		let s = ((webRings - j) / webRings) * webSize;
-		let p = new Particle(width/2 + s * sin(a),
-							 height/2 + s * cos(a));
-		let spacing = webSpacing;
+		for (let j = 0; j < webRings; j++) {
+			let a = i * angleStep;
+			let s = ((webRings - j) / webRings) * webSize;
+			let p = new Particle(width/2 + s * sin(a),
+								 height/2 + s * cos(a));
+			let spacing = webSpacing;
 
-		if (particles.length > 0) {
-		if (j > 0) {
-		constraints.push(new Constraint(
-			particles[particles.length - 1],
-			p,
-			spacing));
+			if (particles.length > 0) {
+				if (j > 0) {
+				constraints.push(new Constraint(
+					particles[particles.length - 1],
+					p,
+					spacing));
+				}
+				if (i > 0) {
+					constraints.push(new Constraint(
+					particles[particles.length - webRings],
+					p,
+					spacing));
+				}
+				if (i == webPoints - 1) {
+					constraints.push(new Constraint(
+					particles[j],
+					p,
+					spacing));
+				}
+			}
+			if (j == 0)
+				p.invmass = 0;
+			particles.push(p);
 		}
-		if (i > 0) {
-			constraints.push(new Constraint(
-			particles[particles.length - webRings],
-			p,
-			spacing));
-		}
-		if (i == webPoints - 1) {
-			constraints.push(new Constraint(
-			particles[j],
-			p,
-			spacing));
-		}
-		}
-		if (j == 0)
-		p.invmass = 0;
-
-		particles.push(p);
-	}
 	}
 }
