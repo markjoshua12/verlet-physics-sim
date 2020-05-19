@@ -1,6 +1,7 @@
 
 const NUM_PARTICLES = 0;
 const SIZE = 5;
+const SIZE_D2 = SIZE / 2.0;
 const STEPS = 4;
 
 const GRID_SIZE = 40;
@@ -15,13 +16,15 @@ var initGravityX = 0;
 var initGravityY = 0.1;
 var gravity = null;
 
-var dragDist = 60;
+var dragDist = 125;
 var currP = null;
 var delta = null;
 
 var drawPoints = false;
 var showDebugText = true;
 var mouseInsideSketch = true;
+var demoType = 'CLOTH';
+var isPaused = false;
 
 let clothWidth = 25;
 let clothHeight = 20;
@@ -30,7 +33,6 @@ let clothConstraintLength = 20;
 let clothAttachPoints = 2;
 
 let clothXMargin = null;
-
 
 let webPoints = 40;
 let webRings = 12;
@@ -61,11 +63,26 @@ function setup() {
 	});
 
 	createDiv('Wind').parent(settingsCont);
-	gravityXSlider = createSlider(-1, 1, initGravityX, 0.01)
-		.parent(settingsCont);
+	gravityXSlider = createSlider(-1, 1, initGravityX, 0.01).parent(settingsCont);
+	gravityXInput = createInput(str(gravityXSlider.value())).parent(settingsCont);
+
+	gravityXSlider.changed(function() {
+	gravityXInput.value(gravityXSlider.value());
+	});
+	gravityXInput.changed(function() {
+		gravityXSlider.value(gravityXInput.value());
+	});
 
 	createDiv('Gravity').parent(settingsCont);
 	gravityYSlider = createSlider(-1, 1, initGravityY, 0.01).parent(settingsCont);
+	gravityYInput = createInput(str(gravityYSlider.value())).parent(settingsCont);
+	
+	gravityYSlider.changed(function() {
+		gravityYInput.value(gravityYSlider.value());
+	});
+	gravityYInput.changed(function() {
+		gravityYSlider.value(gravityYInput.value());
+	});
 
 	let drawPointsBtn = createButton('Draw Points');
 	drawPointsBtn.addClass('settings-btn inactive');
@@ -83,6 +100,17 @@ function setup() {
 		showDebugBtn.toggleClass('inactive');
 	});
 
+	let pauseBtn = createButton('Pause');
+	pauseBtn.addClass('settings-btn');
+	pauseBtn.parent(settingsCont);
+	pauseBtn.mousePressed(function() {
+		if (isPaused)
+			loop();
+		else
+			noLoop();
+		isPaused = !isPaused;
+	});
+
 	let resetBtn = createButton('Reset');
 	resetBtn.addClass('settings-btn');
 	resetBtn.parent(settingsCont);
@@ -96,9 +124,7 @@ function init() {
 	particles = [];
 	constraints = [];
 
-	gravityXSlider.value(initGravityX);
-	gravityYSlider.value(initGravityY);
-	gravity = createVector(0, 0);
+	gravity = createVector(initGravityX, initGravityY);
 	
 	clothXMargin = (width - (clothWidth * clothSpacing)) / 2;
 	
@@ -158,13 +184,13 @@ function draw() {
 		let c = constraints[i];
 		line(c.p1.x, c.p1.y, c.p2.x, c.p2.y);
 	}
+	noStroke();
 
 	// Draw the points
 	if (drawPoints) {
-		noStroke();
 		fill(255, 255, 0);
 		for (let i = 0; i < particles.length; i++) {
-			circle(particles[i].x, particles[i].y,  SIZE);
+			rect(particles[i].x - SIZE_D2, particles[i].y - SIZE_D2,  SIZE, SIZE);
 		}
 	}
 
@@ -182,9 +208,11 @@ function mousePressed() {
 	//  return;
 	if (!mouseInsideSketch)
 		return;
-	if (mouseButton == RIGHT)
-	createTriangle(mouseX, mouseY, 100);
-	
+	if (mouseButton == RIGHT) {
+		createTriangle(mouseX, mouseY, 100);
+		if (isPaused)
+			redraw();
+	}
 	// let p = new Particle(mouseX, mouseY);
 	// p.px += random() * 2 - 1;
 	// p.py += random() * 2 - 1;
@@ -199,8 +227,8 @@ function windowResized() {
 
 function buildGrid() {
 	grid = [];
-	grid_w = floor(width / GRID_SIZE);
-	grid_h = floor(height / GRID_SIZE);
+	grid_w = Math.ceil(width / GRID_SIZE);
+	grid_h = Math.ceil(height / GRID_SIZE);
 	
 	for (let i = 0; i < grid_w * grid_h; i++)
 		grid.push([]);
@@ -255,40 +283,55 @@ function updateParticles() {
 }
 
 function updateConstraints() {
+	let constToBeRemoved = [];
 	for (let i = 0; i < constraints.length; i++) {
-	let c = constraints[i];
-	let dx = c.p1.x - c.p2.x;
-	let dy = c.p1.y - c.p2.y;
-	if (dx == 0 && dy == 0) {
-		dx += Math.random() * 0.1;
-		dy += Math.random() * 0.1;
-	}
-	
-	// let d = Math.sqrt((dx * dx) + (dy * dy));
-	// if (!c.pushing && d < c.l)
-	//   continue;
-	// let percent = ((d - c.l) *
-	//                (c.p1.invmass + c.p2.invmass)) /
-	//                d;
-	
-	// Squared dist for optimization
-	let dSq = (dx * dx) + (dy * dy);
-	if (!c.pushing && dSq < c.lSq)
-		continue;
-	let percent = ((dSq - c.lSq) *
-					 (c.p1.invmass + c.p2.invmass)) /
-					 dSq;
-	
-	let offx1 = dx * percent * c.p1.invmass;
-	let offy1 = dy * percent * c.p1.invmass;
-	let offx2 = dx * percent * c.p2.invmass;
-	let offy2 = dy * percent * c.p2.invmass;
-	
-	c.p1.x -= offx1;
-	c.p1.y -= offy1;
-	c.p2.x += offx2;
-	c.p2.y += offy2;
-	
+		let c = constraints[i];
+		if (!c.p1 || !c.p2)
+			continue;
+		let dx = c.p1.x - c.p2.x;
+		let dy = c.p1.y - c.p2.y;
+		if (dx == 0 && dy == 0) {
+			dx += Math.random() * 0.1;
+			dy += Math.random() * 0.1;
+		}
+		
+		// let d = Math.sqrt((dx * dx) + (dy * dy));
+		// if (!c.pushing && d < c.l)
+		// if (c.canTear && dSq > c.tearStr) {
+		// 	constraints[i] = constraints[constraints.length - 1];
+		// 	i--;
+		// constraints.pop();
+		// 	continue;
+		// }
+		//   continue;
+		// let percent = ((d - c.l) *
+		//                (c.p1.invmass + c.p2.invmass)) /
+		//                d;
+		
+		// Squared dist for optimization
+		let dSq = (dx * dx) + (dy * dy);
+		if (!c.pushing && dSq < c.lSq)
+			continue;
+		if (c.canTear && dSq > c.tearStrSq) {
+			constraints[i] = constraints[constraints.length - 1];
+			i--;
+			constraints.pop();
+			continue;
+		}
+		let percent = ((dSq - c.lSq) *
+						 (c.p1.invmass + c.p2.invmass)) /
+						 dSq;
+		
+		let offx1 = dx * percent * c.p1.invmass;
+		let offy1 = dy * percent * c.p1.invmass;
+		let offx2 = dx * percent * c.p2.invmass;
+		let offy2 = dy * percent * c.p2.invmass;
+		
+		c.p1.x -= offx1;
+		c.p1.y -= offy1;
+		c.p2.x += offx2;
+		c.p2.y += offy2;
+		
 	}
 }
 
@@ -317,28 +360,39 @@ function Particle(x, y) {
 	this.invmass = 0.3;
 }
 
-function Constraint(p1, p2, l, pushing = true) {
+function Constraint(p1, p2, l, pushing = true, canTear = false, tearMult = 1) {
 	this.p1 = p1;
 	this.p2 = p2;
 	this.l = l;
 	this.lSq = l * l;
 	this.pushing = pushing;
+	this.canTear = canTear;
+	if (canTear) {
+		this.tearStr = l * tearMult;
+		this.tearStrSq = this.lSq * tearMult;
+	}
 }
 
 function createTriangle(x, y, size) {
-	for (let i = 0; i < 3; i++) {
-	p = new Particle(x + random() * size - size/2,
-					 y + random() * size - size/2);
-	if (i > 0) {
-		c = new Constraint(
-		particles[particles.length - 1], p, size);
-		constraints.push(c);
-		if (i == 2)
-		constraints.push(new Constraint(
-			particles[particles.length - 2], p, size));
+	let l = 3;
+	let a = 0;
+	let astep = TWO_PI / l;
+	for (let i = 0; i < l; i++) {
+		p = new Particle(x + Math.sin(a) * size,
+						 y + Math.cos(a) * size);
+		a += astep;
+		if (i > 0) {
+			constraints.push(new Constraint(
+				particles[particles.length - 1], p, size));
+		}
+		particles.push(p);
 	}
-	particles.push(p);
-	}
+
+	// Join ends of polygon
+	constraints.push(new Constraint(
+		particles[particles.length - 1],
+		particles[particles.length - l],
+		size));
 }
 
 
