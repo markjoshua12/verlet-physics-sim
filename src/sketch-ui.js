@@ -69,6 +69,21 @@ function initSettingsUI() {
 		clothHeight = clothHeightSlider.value();
 	});
 
+	// Cloth Height
+	let clothSpacingSlider = select('#cloth-spacing-range').value(clothSpacing);
+	let clothSpacingInput = select('#cloth-spacing-input').value(clothSpacing);
+
+	clothSpacingSlider.mouseMoved(function() {
+		if (mouseIsPressed) {
+			clothSpacingInput.value(clothSpacingSlider.value());
+			clothSpacing = clothSpacingSlider.value();
+		}
+	});
+	clothSpacingInput.changed(function() {
+		clothSpacingSlider.value(clothSpacingInput.value());
+		clothSpacing = clothSpacingSlider.value();
+	});
+
 	// Attached points
 	let attachedPointsSlider = select('#attached-points-range').value(clothAttachPoints);
 	let attachedPointsInput = select('#attached-points-input').value(clothAttachPoints);
