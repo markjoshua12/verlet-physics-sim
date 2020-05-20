@@ -69,6 +69,21 @@ function initSettingsUI() {
 		clothAttachPoints = attachedPointsSlider.value();
 	});
 
+	// Constraint Length
+	let constLengthSlider = select('#constraint-length-range').value(clothConstraintLength);
+	let constLengthInput = select('#constraint-length-input').value(clothConstraintLength);
+
+	constLengthSlider.mouseMoved(function() {
+		if (mouseIsPressed) {
+			constLengthInput.value(constLengthSlider.value());
+			clothConstraintLength = constLengthSlider.value();
+		}
+	});
+	constLengthInput.changed(function() {
+		constLengthSlider.value(constLengthInput.value());
+		clothConstraintLength = constLengthSlider.value();
+	});
+
 	// Tear Strength
 	let tearStrSlider = select('#tear-str-range').value(tearStr);
 	let tearStrInput = select('#tear-str-input').value(tearStr);
