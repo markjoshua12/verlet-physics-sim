@@ -2,6 +2,7 @@ html, body {
     margin: 0;
     padding: 0;
     font-family: 'Roboto', sans-serif;
+    color: white;
 }
 
 .container {
@@ -21,16 +22,44 @@ html, body {
 .settings-container {
     position: absolute;
     padding: 8px;
-    left: 0px;
-    bottom: 0px;
+    max-width: 360px;
+    left: 6px;
+    bottom: 6px;
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 8px;
 }
 
+.settings-container.left {
+    max-width: 240px;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-container.right {
+    max-width: 120px;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-range {
+
+}
+
+.settings-input {
+    max-width: 42px;
+}
+
 .settings-btn {
-    display: block;
+    display: inline-block;
+    margin-bottom: 6px;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Roboto', sans-serif;
+    background-color: orange;
+    color: white;
 }
 
 .settings-btn.inactive {
-    background-color: gray;
+    background-color: #555;
 }
