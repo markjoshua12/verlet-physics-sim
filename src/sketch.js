@@ -44,7 +44,7 @@ function setup() {
 	let canvas = createCanvas(windowWidth, windowHeight);
 	canvas.parent("#sketch");
 	
-	let settingsCont = createDiv().addClass('settings-container').parent('sketch');
+	let settingsCont = select('.settings-container');
 	settingsCont.mouseOver(function() {
 		mouseInsideSketch = false;
 	});
@@ -52,9 +52,11 @@ function setup() {
 		mouseInsideSketch = true;
 	});
 
-	createDiv('Wind').parent(settingsCont);
-	gravityXSlider = createSlider(-1, 1, initGravityX, 0.01).parent(settingsCont);
-	gravityXInput = createInput(str(gravityXSlider.value())).parent(settingsCont);
+	gravityXSlider = select('#wind-range').value(initGravityX);
+	gravityXInput = select('#wind-input').value(str(gravityXSlider.value()));
+
+	gravityYSlider = select('#gravity-range').value(initGravityY);
+	gravityYInput = select('#gravity-input').value(str(gravityYSlider.value()));
 
 	gravityXSlider.changed(function() {
 	gravityXInput.value(gravityXSlider.value());
@@ -63,10 +65,6 @@ function setup() {
 		gravityXSlider.value(gravityXInput.value());
 	});
 
-	createDiv('Gravity').parent(settingsCont);
-	gravityYSlider = createSlider(-1, 1, initGravityY, 0.01).parent(settingsCont);
-	gravityYInput = createInput(str(gravityYSlider.value())).parent(settingsCont);
-	
 	gravityYSlider.changed(function() {
 		gravityYInput.value(gravityYSlider.value());
 	});
@@ -74,25 +72,21 @@ function setup() {
 		gravityYSlider.value(gravityYInput.value());
 	});
 
-	let drawPointsBtn = createButton('Draw Points');
-	drawPointsBtn.addClass('settings-btn inactive');
-	drawPointsBtn.parent(settingsCont);
+	let drawPointsBtn = select('#draw-points');
+
 	drawPointsBtn.mousePressed(function() {
 		drawPoints = !drawPoints;
 		drawPointsBtn.toggleClass('inactive');
 	});
 
-	let showDebugBtn = createButton('Debug Text');
-	showDebugBtn.addClass('settings-btn inactive');
-	showDebugBtn.parent(settingsCont);
+	let showDebugBtn = select('#show-debug');
+
 	showDebugBtn.mousePressed(function() {
 		showDebugText = !showDebugText;
 		showDebugBtn.toggleClass('inactive');
 	});
 
-	let pauseBtn = createButton('Pause');
-	pauseBtn.addClass('settings-btn');
-	pauseBtn.parent(settingsCont);
+	let pauseBtn = select('#pause');
 	pauseBtn.mousePressed(function() {
 		if (isPaused)
 			loop();
@@ -101,10 +95,13 @@ function setup() {
 		isPaused = !isPaused;
 	});
 
-	let resetBtn = createButton('Reset');
-	resetBtn.addClass('settings-btn');
-	resetBtn.parent(settingsCont);
-	resetBtn.mousePressed(init);
+	let resetBtn = select('#reset');
+	resetBtn.mousePressed(function() {
+		init();
+		if (isPaused) {
+			redraw();
+		}
+	});
 
 	init();
 }
