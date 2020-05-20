@@ -43,10 +43,6 @@ function initSettingsUI() {
 	let clothWidthSlider = select('#cloth-width-range').value(clothWidth);
 	let clothWidthInput = select('#cloth-width-input').value(clothWidth);
 
-	// Attached points
-	let attachedPointsSlider = select('#attached-points-range').value(clothAttachPoints);
-	let attachedPointsInput = select('#attached-points-input').value(clothAttachPoints);
-
 	clothWidthSlider.mouseMoved(function() {
 		if (mouseIsPressed) {
 			clothWidthInput.value(clothWidthSlider.value());
@@ -57,6 +53,25 @@ function initSettingsUI() {
 		clothWidthSlider.value(clothWidthInput.value());
 		clothWidth = clothWidthSlider.value();
 	});
+
+	// Cloth Height
+	let clothHeightSlider = select('#cloth-height-range').value(clothHeight);
+	let clothHeightInput = select('#cloth-height-input').value(clothHeight);
+
+	clothHeightSlider.mouseMoved(function() {
+		if (mouseIsPressed) {
+			clothHeightInput.value(clothHeightSlider.value());
+			clothHeight = clothHeightSlider.value();
+		}
+	});
+	clothHeightInput.changed(function() {
+		clothHeightSlider.value(clothHeightInput.value());
+		clothHeight = clothHeightSlider.value();
+	});
+
+	// Attached points
+	let attachedPointsSlider = select('#attached-points-range').value(clothAttachPoints);
+	let attachedPointsInput = select('#attached-points-input').value(clothAttachPoints);
 
 	attachedPointsSlider.mouseMoved(function() {
 		if (mouseIsPressed) {
