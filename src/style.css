@@ -61,7 +61,13 @@ html, body {
 }
 
 .settings-input {
-    max-width: 42px;
+    max-width: 50px;
+    padding: 4px;
+    border-radius: 4px;
+    border: none;
+    color: white;
+    background-color: #555;
+    box-shadow: 1px 1px #222;
 }
 
 .settings-btn {
@@ -73,6 +79,11 @@ html, body {
     font-family: 'Roboto', sans-serif;
     background-color: orange;
     color: white;
+    cursor: pointer;
+}
+
+.settings-btn:hover {
+    box-shadow: 2px 2px 0px 2px #333;
 }
 
 .settings-btn.inactive {
