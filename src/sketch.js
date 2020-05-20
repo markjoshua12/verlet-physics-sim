@@ -40,70 +40,17 @@ let webSize = 200;
 let webSpacing = 12;
 let angleStep = 0.5;
 
+let canTear = false;
+let tearMult = 5;
+let tearStr = clothConstraintLength * tearMult;
+let tearStrSq = tearStr * tearStr;
+
 function setup() {
 	let canvas = createCanvas(windowWidth, windowHeight);
 	canvas.parent("#sketch");
-	
-	let settingsCont = select('.settings-container');
-	settingsCont.mouseOver(function() {
-		mouseInsideSketch = false;
-	});
-	settingsCont.mouseOut(function() {
-		mouseInsideSketch = true;
-	});
-
-	gravityXSlider = select('#wind-range').value(initGravityX);
-	gravityXInput = select('#wind-input').value(str(gravityXSlider.value()));
-
-	gravityYSlider = select('#gravity-range').value(initGravityY);
-	gravityYInput = select('#gravity-input').value(str(gravityYSlider.value()));
-
-	gravityXSlider.changed(function() {
-	gravityXInput.value(gravityXSlider.value());
-	});
-	gravityXInput.changed(function() {
-		gravityXSlider.value(gravityXInput.value());
-	});
-
-	gravityYSlider.changed(function() {
-		gravityYInput.value(gravityYSlider.value());
-	});
-	gravityYInput.changed(function() {
-		gravityYSlider.value(gravityYInput.value());
-	});
-
-	let drawPointsBtn = select('#draw-points');
-
-	drawPointsBtn.mousePressed(function() {
-		drawPoints = !drawPoints;
-		drawPointsBtn.toggleClass('inactive');
-	});
-
-	let showDebugBtn = select('#show-debug');
-
-	showDebugBtn.mousePressed(function() {
-		showDebugText = !showDebugText;
-		showDebugBtn.toggleClass('inactive');
-	});
-
-	let pauseBtn = select('#pause');
-	pauseBtn.mousePressed(function() {
-		if (isPaused)
-			loop();
-		else
-			noLoop();
-		isPaused = !isPaused;
-	});
-
-	let resetBtn = select('#reset');
-	resetBtn.mousePressed(function() {
-		init();
-		if (isPaused) {
-			redraw();
-		}
-	});
 
 	init();
+	initSettingsUI();
 }
 
 function init() {
@@ -133,9 +80,6 @@ function init() {
 function draw() {
 	
 	background(125);
-	
-	gravity.x = gravityXSlider.value();
-	gravity.y = gravityYSlider.value();
 	
 	updateParticles();
 	for (let i = 0; i < STEPS; i++) {
@@ -284,11 +228,14 @@ function updateConstraints() {
 		// let d = Math.sqrt((dx * dx) + (dy * dy));
 		// if (!c.pushing && d < c.l)
 		// 	continue;
-		// if (c.canTear && d > c.tearStr) {
-		// 	constraints[i] = constraints[constraints.length - 1];
-		// 	i--;
-		// 	constraints.pop();
-		// 	continue;
+		// if (canTear) {
+			// let tearStr = c.l * tearMult;
+			// if (d > tearStr) {
+			// 	constraints[i] = constraints[constraints.length - 1];
+			// 	i--;
+			// 	constraints.pop();
+			// 	continue;
+			// }
 		// }
 		// let percent = ((d - c.l) *
 		//                (c.p1.invmass + c.p2.invmass)) /
@@ -298,11 +245,14 @@ function updateConstraints() {
 		let dSq = (dx * dx) + (dy * dy);
 		if (!c.pushing && dSq < c.lSq)
 			continue;
-		if (c.canTear && dSq > c.tearStrSq) {
-			constraints[i] = constraints[constraints.length - 1];
-			i--;
-			constraints.pop();
-			continue;
+		if (canTear && c.canTear) {
+			// let tearStrSq = c.lSq * tearMult;
+			if (dSq > tearStrSq) {
+				constraints[i] = constraints[constraints.length - 1];
+				i--;
+				constraints.pop();
+				continue;
+			}
 		}
 		let percent = ((dSq - c.lSq) *
 						 (c.p1.invmass + c.p2.invmass)) /
@@ -353,10 +303,8 @@ function Constraint(p1, p2, l, pushing = true, canTear = false, tearMult = 1) {
 	this.lSq = l * l;
 	this.pushing = pushing;
 	this.canTear = canTear;
-	if (canTear) {
-		this.tearStr = l * tearMult;
-		this.tearStrSq = this.lSq * tearMult;
-	}
+	this.tearStr = l * tearMult;
+	this.tearStrSq = this.lSq * tearMult;
 }
 
 function createTriangle(x, y, size) {
@@ -369,7 +317,7 @@ function createTriangle(x, y, size) {
 		a += astep;
 		if (i > 0) {
 			constraints.push(new Constraint(
-				particles[particles.length - 1], p, size));
+				particles[particles.length - 1], p, size, true, false));
 		}
 		particles.push(p);
 	}
@@ -378,7 +326,7 @@ function createTriangle(x, y, size) {
 	constraints.push(new Constraint(
 		particles[particles.length - 1],
 		particles[particles.length - l],
-		size));
+		size, true, false));
 }
 
 
@@ -393,13 +341,13 @@ function createClothSim() {
 			constraints.push(new Constraint(
 				particles[x - 1 + y * clothWidth],
 				p,
-				clothConstraintLength, false));
+				clothConstraintLength, false, true, tearMult));
 			}
 			if (y > 0) {
 			constraints.push(new Constraint(
 				particles[x + (y - 1) * clothWidth],
 				p,
-				clothConstraintLength, false));
+				clothConstraintLength, false, true, tearMult));
 			} else {
 				if (y == 0 && x % clothAttachPoints == 0)
 					p.invmass = 0;

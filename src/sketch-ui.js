@@ -10,6 +10,7 @@ function initSettingsUI() {
 	});
 
 	// Sliders and input
+	// Gravity
 	gravityXSlider = select('#wind-range').value(initGravityX);
 	gravityXInput = select('#wind-input').value(initGravityX);
 
@@ -38,9 +39,11 @@ function initSettingsUI() {
 		gravity.y = gravityYSlider.value();
 	});
 
+	// Cloth Width
 	let clothWidthSlider = select('#cloth-width-range').value(clothWidth);
 	let clothWidthInput = select('#cloth-width-input').value(clothWidth);
 
+	// Attached points
 	let attachedPointsSlider = select('#attached-points-range').value(clothAttachPoints);
 	let attachedPointsInput = select('#attached-points-input').value(clothAttachPoints);
 
@@ -64,6 +67,23 @@ function initSettingsUI() {
 	attachedPointsInput.changed(function() {
 		attachedPointsSlider.value(attachedPointsInput.value());
 		clothAttachPoints = attachedPointsSlider.value();
+	});
+
+	// Tear Strength
+	let tearStrSlider = select('#tear-str-range').value(tearStr);
+	let tearStrInput = select('#tear-str-input').value(tearStr);
+
+	tearStrSlider.mouseMoved(function() {
+		if (mouseIsPressed) {
+			tearStrInput.value(tearStrSlider.value());
+			tearStr = tearStrSlider.value();
+			tearStrSq = tearStr * tearStr;
+		}
+	});
+	tearStrInput.changed(function() {
+		tearStrSlider.value(tearStrInput.value());
+		tearStr = tearStrSlider.value();
+		tearStrSq = tearStr * tearStr;
 	});
 
 	// Buttons
