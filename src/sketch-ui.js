@@ -169,4 +169,13 @@ function initSettingsUI() {
 		canTear = !canTear;
 		canTearBtn.toggleClass('inactive');
 	});
+
+	let containerHider = select('#container-hider');
+	containerHider.mousePressed(function() {
+		select('.inside').toggleClass('hidden');
+		if (containerHider.html() == 'Hide')
+			containerHider.html('Show');
+		else
+			containerHider.html('Hide');
+	});
 }
