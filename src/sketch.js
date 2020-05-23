@@ -257,16 +257,14 @@ function updateConstraints() {
 		let percent = ((dSq - c.lSq) *
 						 (c.p1.invmass + c.p2.invmass)) /
 						 dSq;
+
+		dx *= percent;
+		dy *= percent;
 		
-		let offx1 = dx * percent * c.p1.invmass;
-		let offy1 = dy * percent * c.p1.invmass;
-		let offx2 = dx * percent * c.p2.invmass;
-		let offy2 = dy * percent * c.p2.invmass;
-		
-		c.p1.x -= offx1;
-		c.p1.y -= offy1;
-		c.p2.x += offx2;
-		c.p2.y += offy2;
+		c.p1.x -= dx * c.p1.invmass;;
+		c.p1.y -= dy * c.p1.invmass;;
+		c.p2.x += dx * c.p2.invmass;;
+		c.p2.y += dy * c.p2.invmass;;
 		
 	}
 }
