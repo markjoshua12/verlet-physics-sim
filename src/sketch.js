@@ -11,6 +11,8 @@ var grid = null;
 
 var particles = null;
 var constraints = null;
+var bodies = null;
+var physics = null;
 
 var initGravityX = 0;
 var initGravityY = 0.1;
@@ -57,6 +59,8 @@ function init() {
 	grid = []
 	particles = [];
 	constraints = [];
+	bodies = [];
+	physics = new Physics();
 
 	gravity = createVector(initGravityX, initGravityY);
 	
@@ -84,6 +88,19 @@ function draw() {
 	updateParticles();
 	for (let i = 0; i < STEPS; i++) {
 		updateConstraints();
+
+		for (body1 of bodies) {
+			body1.calculateBBox();
+
+			for (body2 of bodies) {
+				if (body1 === body2)
+					continue;
+
+				if (physics.detectCollision(body1, body2))
+					physics.processCollision();
+			}
+		}
+
 		constrainPoints();
 	}
 	
@@ -306,25 +323,37 @@ function Constraint(p1, p2, l, pushing = true, canTear = false, tearMult = 1) {
 }
 
 function createTriangle(x, y, size) {
-	let l = 3;
+	let body = new Body();
 	let a = 0;
+	let l = 3;
 	let astep = TWO_PI / l;
 	for (let i = 0; i < l; i++) {
 		p = new Particle(x + Math.sin(a) * size,
 						 y + Math.cos(a) * size);
 		a += astep;
 		if (i > 0) {
-			constraints.push(new Constraint(
-				particles[particles.length - 1], p, size, true, false));
+			let c = new Constraint(
+				particles[particles.length - 1], p, size, true, false);
+			constraints.push(c);
+			body.constraints.push(c);
 		}
 		particles.push(p);
+		body.vertices.push(p);
 	}
 
 	// Join ends of polygon
-	constraints.push(new Constraint(
+	let end = new Constraint(
 		particles[particles.length - 1],
 		particles[particles.length - l],
-		size, true, false));
+		size, true, false);
+
+	constraints.push(end);
+	body.constraints.push(end);
+
+	body.vertexCount = body.vertices.length;
+	body.constraintCount = body.constraints.length;
+
+	bodies.push(body);
 }
 
 
