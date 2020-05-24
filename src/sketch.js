@@ -152,12 +152,15 @@ function draw() {
 }
 
 function mousePressed() {
-	// if (mouseX < 0 || mouseX >= width || mouseY < 0 || mouseY >= height)
-	//  return;
+	if (mouseX < 0 || mouseX >= width || mouseY < 0 || mouseY >= height)
+		return;
 	if (!mouseInsideSketch)
 		return;
 	if (mouseButton == RIGHT) {
-		createTriangle(mouseX, mouseY, 100);
+		if (random() < 0.5)
+			createTriangle(mouseX, mouseY, 50 + random(50));
+		else
+			createBox(mouseX, mouseY, 50 + random(50));
 		if (isPaused)
 			redraw();
 	}
@@ -349,6 +352,44 @@ function createTriangle(x, y, size) {
 
 	constraints.push(end);
 	body.constraints.push(end);
+
+	body.vertexCount = body.vertices.length;
+	body.constraintCount = body.constraints.length;
+
+	bodies.push(body);
+}
+
+function createBox(x, y, size) {
+	let body = new Body();
+	let hsize = size * 0.5;
+
+	let vertices = [];
+	vertices.push(new Particle(x - hsize, y - hsize));
+	vertices.push(new Particle(x + hsize, y - hsize));
+	vertices.push(new Particle(x + hsize, y + hsize));
+	vertices.push(new Particle(x - hsize, y + hsize));
+
+	particles.push(...vertices);
+	body.vertices.push(...vertices);
+
+	for (let i = 0; i < vertices.length; i++) {
+		let c = new Constraint(
+			vertices[(i + 1) % vertices.length],
+			vertices[i],
+			size);
+
+		constraints.push(c);
+		body.constraints.push(c);
+
+		if (i > 1) {
+			let d = new Constraint(vertices[(i + 2) % vertices.length],
+				vertices[i],
+				size * sqrt(2.0));
+
+			constraints.push(d);
+			body.constraints.push(d);
+		}
+	}
 
 	body.vertexCount = body.vertices.length;
 	body.constraintCount = body.constraints.length;

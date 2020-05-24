@@ -85,19 +85,21 @@ class Physics {
 			T = (this.vertex.y - colVec.y - p1.y) /
 					(p2.y - p1.y);
 
-		let invT = 1 - T;
-		let lambda = 1.0 / (T*T + invT * invT);
+		let invT = 1.0 - T;
+		let lambda = 1.0 / (T * T + invT * invT);
 
-		let cx = colVec.x * 0.5 * lambda;
-		let cy = colVec.y * 0.5 * lambda;
+		let hcx = colVec.x * 0.5;
+		let hcy = colVec.y * 0.5;
+		let lcx = hcx * lambda;
+		let lcy = hcy * lambda;
 
-		p1.x -= cx * invT;
-		p1.y -= cy * invT;
-		p2.x -= cx * T;
-		p2.y -= cy * T;
+		p1.x -= lcx * invT;
+		p1.y -= lcy * invT;
+		p2.x -= lcx * T;
+		p2.y -= lcy * T;
 
-		this.vertex.x += colVec.x * 0.5;
-		this.vertex.y += colVec.y * 0.5;
+		this.vertex.x += hcx;
+		this.vertex.y += hcy;
 	}
 
 	static intervalDistance(minA, maxA, minB, maxB) {
@@ -129,10 +131,10 @@ class Body {
 		for (let i = 0; i < this.vertexCount; i++) {
 			let v = this.vertices[i];
 
-			if (v.x > maxX) maxX = p.x;
-			if (v.y > maxY) maxY = p.y;
-			if (v.x < minX) minX = p.x;
-			if (v.y < minY) minY = p.y;
+			if (v.x > maxX) maxX = v.x;
+			if (v.y > maxY) maxY = v.y;
+			if (v.x < minX) minX = v.x;
+			if (v.y < minY) minY = v.y;
 		}
 
 		this.center.set((minX + maxX) * 0.5, (minY + maxY) * 0.5);
