@@ -50,6 +50,7 @@ let tearStrSq = tearStr * tearStr;
 function setup() {
 	let canvas = createCanvas(windowWidth, windowHeight);
 	canvas.parent("#sketch");
+	canvas.attribute('oncontextmenu', 'return false;');
 
 	init();
 	initSettingsUI();
