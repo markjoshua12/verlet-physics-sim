@@ -11,6 +11,8 @@ var grid = null;
 
 var particles = null;
 var constraints = null;
+var bodies = null;
+var physics = null;
 
 var initGravityX = 0;
 var initGravityY = 0.1;
@@ -48,6 +50,7 @@ let tearStrSq = tearStr * tearStr;
 function setup() {
 	let canvas = createCanvas(windowWidth, windowHeight);
 	canvas.parent("#sketch");
+	canvas.attribute('oncontextmenu', 'return false;');
 
 	init();
 	initSettingsUI();
@@ -57,6 +60,8 @@ function init() {
 	grid = []
 	particles = [];
 	constraints = [];
+	bodies = [];
+	physics = new Physics();
 
 	gravity = createVector(initGravityX, initGravityY);
 	
@@ -84,6 +89,19 @@ function draw() {
 	updateParticles();
 	for (let i = 0; i < STEPS; i++) {
 		updateConstraints();
+
+		for (body1 of bodies) {
+			body1.calculateBBox();
+
+			for (body2 of bodies) {
+				if (body1 === body2)
+					continue;
+
+				if (physics.detectCollision(body1, body2))
+					physics.processCollision();
+			}
+		}
+
 		constrainPoints();
 	}
 	
@@ -135,12 +153,15 @@ function draw() {
 }
 
 function mousePressed() {
-	// if (mouseX < 0 || mouseX >= width || mouseY < 0 || mouseY >= height)
-	//  return;
+	if (mouseX < 0 || mouseX >= width || mouseY < 0 || mouseY >= height)
+		return;
 	if (!mouseInsideSketch)
 		return;
 	if (mouseButton == RIGHT) {
-		createTriangle(mouseX, mouseY, 100);
+		if (random() < 0.5)
+			createTriangle(mouseX, mouseY, 50 + random(50));
+		else
+			createBox(mouseX, mouseY, 50 + random(50));
 		if (isPaused)
 			redraw();
 	}
@@ -257,16 +278,14 @@ function updateConstraints() {
 		let percent = ((dSq - c.lSq) *
 						 (c.p1.invmass + c.p2.invmass)) /
 						 dSq;
+
+		dx *= percent;
+		dy *= percent;
 		
-		let offx1 = dx * percent * c.p1.invmass;
-		let offy1 = dy * percent * c.p1.invmass;
-		let offx2 = dx * percent * c.p2.invmass;
-		let offy2 = dy * percent * c.p2.invmass;
-		
-		c.p1.x -= offx1;
-		c.p1.y -= offy1;
-		c.p2.x += offx2;
-		c.p2.y += offy2;
+		c.p1.x -= dx * c.p1.invmass;;
+		c.p1.y -= dy * c.p1.invmass;;
+		c.p2.x += dx * c.p2.invmass;;
+		c.p2.y += dy * c.p2.invmass;;
 		
 	}
 }
@@ -308,25 +327,75 @@ function Constraint(p1, p2, l, pushing = true, canTear = false, tearMult = 1) {
 }
 
 function createTriangle(x, y, size) {
-	let l = 3;
+	let body = new Body();
 	let a = 0;
+	let l = 3;
 	let astep = TWO_PI / l;
 	for (let i = 0; i < l; i++) {
 		p = new Particle(x + Math.sin(a) * size,
 						 y + Math.cos(a) * size);
 		a += astep;
 		if (i > 0) {
-			constraints.push(new Constraint(
-				particles[particles.length - 1], p, size, true, false));
+			let c = new Constraint(
+				particles[particles.length - 1], p, size, true, false);
+			constraints.push(c);
+			body.constraints.push(c);
 		}
 		particles.push(p);
+		body.vertices.push(p);
 	}
 
 	// Join ends of polygon
-	constraints.push(new Constraint(
+	let end = new Constraint(
 		particles[particles.length - 1],
 		particles[particles.length - l],
-		size, true, false));
+		size, true, false);
+
+	constraints.push(end);
+	body.constraints.push(end);
+
+	body.vertexCount = body.vertices.length;
+	body.constraintCount = body.constraints.length;
+
+	bodies.push(body);
+}
+
+function createBox(x, y, size) {
+	let body = new Body();
+	let hsize = size * 0.5;
+
+	let vertices = [];
+	vertices.push(new Particle(x - hsize, y - hsize));
+	vertices.push(new Particle(x + hsize, y - hsize));
+	vertices.push(new Particle(x + hsize, y + hsize));
+	vertices.push(new Particle(x - hsize, y + hsize));
+
+	particles.push(...vertices);
+	body.vertices.push(...vertices);
+
+	for (let i = 0; i < vertices.length; i++) {
+		let c = new Constraint(
+			vertices[(i + 1) % vertices.length],
+			vertices[i],
+			size);
+
+		constraints.push(c);
+		body.constraints.push(c);
+
+		if (i > 1) {
+			let d = new Constraint(vertices[(i + 2) % vertices.length],
+				vertices[i],
+				size * sqrt(2.0));
+
+			constraints.push(d);
+			body.constraints.push(d);
+		}
+	}
+
+	body.vertexCount = body.vertices.length;
+	body.constraintCount = body.constraints.length;
+
+	bodies.push(body);
 }
 
 
