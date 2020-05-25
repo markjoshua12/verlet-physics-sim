@@ -27,6 +27,7 @@ var dragDist = 150;
 var currP = null;
 var delta = null;
 
+var drawFill = true;
 var drawPoints = false;
 var showDebugText = true;
 var mouseInsideSketch = true;
@@ -123,7 +124,7 @@ function draw() {
 	} else {
 		currP = null;
 	}
-	
+
 	stroke(100);
 	for (let x = 0; x < grid_w; x++) {
 	line(x * GRID_SIZE, 0, x * GRID_SIZE, height);
@@ -132,6 +133,17 @@ function draw() {
 	line(0, y * GRID_SIZE, width, y * GRID_SIZE);
 	}
 	
+	if (drawFill) {
+		for (let i = 0; i < bodies.length; i++) {
+			let body = bodies[i];
+			fill((i * 10) % 255, (i * 5) % 255, (254 - i * 5) % 255);
+			beginShape();
+			for (point of body.vertices) {
+				vertex(point.x, point.y);
+			}
+			endShape();
+		}
+	}
 	
 	// Draw the constraints
 	stroke(0);

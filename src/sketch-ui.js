@@ -113,6 +113,13 @@ function initSettingsUI() {
 	});
 
 	// Buttons
+	let drawShapeFillBtn = select('#draw-shape-fill');
+	if (!drawFill) drawShapeFillBtn.addClass('inactive');
+	drawShapeFillBtn.mousePressed(function() {
+		drawFill = !drawFill;
+		drawShapeFillBtn.toggleClass('inactive');
+	});
+
 	let drawPointsBtn = select('#draw-points');
 	if (!drawPoints) drawPointsBtn.addClass('inactive');
 	drawPointsBtn.mousePressed(function() {
