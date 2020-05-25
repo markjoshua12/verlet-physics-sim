@@ -182,4 +182,31 @@ function initSettingsUI() {
 		else
 			containerHider.html('Hide');
 	});
+
+	let toolTypeButtons = selectAll('.tool-type-btn');
+	toolTypeButtons.forEach(function(e, i) {
+		if (i != toolType)
+			e.addClass('inactive');
+	});
+
+	let toolTypeDrag = toolTypeButtons[0];
+	toolTypeDrag.mousePressed(function() {
+		toolTypeButtons[toolType].addClass('inactive');
+		toolTypeDrag.removeClass('inactive');
+		toolType = TTYPE_DRAG;
+	});
+
+	let toolTypeTriangle = toolTypeButtons[1];
+	toolTypeTriangle.mousePressed(function() {
+		toolTypeButtons[toolType].addClass('inactive');
+		toolTypeTriangle.removeClass('inactive');
+		toolType = TTYPE_TRIANGLE;
+	});
+
+	let toolTypeSquare = toolTypeButtons[2];
+	toolTypeSquare.mousePressed(function() {
+		toolTypeButtons[toolType].addClass('inactive');
+		toolTypeSquare.removeClass('inactive');
+		toolType = TTYPE_SQUARE;
+	});
 }

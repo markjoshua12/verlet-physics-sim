@@ -4,6 +4,10 @@ const SIZE = 5;
 const SIZE_D2 = SIZE / 2.0;
 const STEPS = 4;
 
+const TTYPE_DRAG = 0;
+const TTYPE_TRIANGLE = 1;
+const TTYPE_SQUARE = 2;
+
 const GRID_SIZE = 40;
 
 var grid_w, grid_h;
@@ -18,6 +22,7 @@ var initGravityX = 0;
 var initGravityY = 0.1;
 var gravity = null;
 
+var pointDragging = false;
 var dragDist = 125;
 var currP = null;
 var delta = null;
@@ -27,6 +32,7 @@ var showDebugText = true;
 var mouseInsideSketch = true;
 var demoType = 'CLOTH';
 var isPaused = false;
+var toolType = TTYPE_DRAG;
 
 let clothWidth = 25;
 let clothHeight = 20;
@@ -51,7 +57,7 @@ function setup() {
 	let canvas = createCanvas(windowWidth, windowHeight);
 	canvas.parent("#sketch");
 	canvas.attribute('oncontextmenu', 'return false;');
-
+	print(toolType);
 	init();
 	initSettingsUI();
 }
@@ -107,7 +113,7 @@ function draw() {
 	
 	buildGrid();
 	
-	if (mouseIsPressed && mouseInsideSketch) {
+	if (pointDragging) {
 		if (currP) {
 			currP.x = mouseX;
 			currP.y = mouseY;
@@ -153,23 +159,30 @@ function draw() {
 }
 
 function mousePressed() {
-	if (mouseX < 0 || mouseX >= width || mouseY < 0 || mouseY >= height)
+	if (!mouseInsideSketch ||
+		mouseX < 0 || mouseX >= width ||
+		mouseY < 0 || mouseY >= height)
 		return;
-	if (!mouseInsideSketch)
-		return;
-	if (mouseButton == RIGHT) {
-		if (random() < 0.5)
-			createTriangle(mouseX, mouseY, 50 + random(50));
-		else
-			createBox(mouseX, mouseY, 50 + random(50));
-		if (isPaused)
-			redraw();
+
+	if (toolType == TTYPE_DRAG) {
+		pointDragging = true;
+	} else if (toolType == TTYPE_TRIANGLE) {
+		createTriangle(mouseX, mouseY, 25 + random(100));
+	} else if (toolType == TTYPE_SQUARE) {
+		createBox(mouseX, mouseY, 25 + random(100));
 	}
+
+	if (isPaused)
+		redraw();
 	// let p = new Particle(mouseX, mouseY);
 	// p.px += random() * 2 - 1;
 	// p.py += random() * 2 - 1;
 	// constraints.push(new Constraint(particles[particles.length - 1], p, random() * 10 + 10));
 	// particles.push(p);
+}
+
+function mouseReleased() {
+	pointDragging = false;
 }
 
 function windowResized() {
