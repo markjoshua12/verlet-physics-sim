@@ -17,22 +17,18 @@ function initSettingsUI() {
 	gravityYSlider = select('#gravity-range').value(initGravityY);
 	gravityYInput = select('#gravity-input').value(initGravityY);
 
-	gravityXSlider.mouseMoved(function() {
-		if (mouseIsPressed) {
-			gravityXInput.value(gravityXSlider.value());
-			gravity.x = gravityXSlider.value();
-		}
+	gravityXSlider.changed(function() {
+		gravityXInput.value(gravityXSlider.value());
+		gravity.x = gravityXSlider.value();
 	});
 	gravityXInput.changed(function() {
 		gravityXSlider.value(gravityXInput.value());
 		gravity.x = gravityXSlider.value();
 	});
 
-	gravityYSlider.mouseMoved(function() {
-		if (mouseIsPressed) {
-			gravityYInput.value(gravityYSlider.value());
-			gravity.y = gravityYSlider.value();
-		}
+	gravityYSlider.changed(function() {
+		gravityYInput.value(gravityYSlider.value());
+		gravity.y = gravityYSlider.value();
 	});
 	gravityYInput.changed(function() {
 		gravityYSlider.value(gravityYInput.value());
@@ -43,11 +39,9 @@ function initSettingsUI() {
 	let clothWidthSlider = select('#cloth-width-range').value(clothWidth);
 	let clothWidthInput = select('#cloth-width-input').value(clothWidth);
 
-	clothWidthSlider.mouseMoved(function() {
-		if (mouseIsPressed) {
-			clothWidthInput.value(clothWidthSlider.value());
-			clothWidth = clothWidthSlider.value();
-		}
+	clothWidthSlider.changed(function() {
+		clothWidthInput.value(clothWidthSlider.value());
+		clothWidth = clothWidthSlider.value();
 	});
 	clothWidthInput.changed(function() {
 		clothWidthSlider.value(clothWidthInput.value());
@@ -58,11 +52,9 @@ function initSettingsUI() {
 	let clothHeightSlider = select('#cloth-height-range').value(clothHeight);
 	let clothHeightInput = select('#cloth-height-input').value(clothHeight);
 
-	clothHeightSlider.mouseMoved(function() {
-		if (mouseIsPressed) {
-			clothHeightInput.value(clothHeightSlider.value());
-			clothHeight = clothHeightSlider.value();
-		}
+	clothHeightSlider.changed(function() {
+		clothHeightInput.value(clothHeightSlider.value());
+		clothHeight = clothHeightSlider.value();
 	});
 	clothHeightInput.changed(function() {
 		clothHeightSlider.value(clothHeightInput.value());
@@ -73,11 +65,9 @@ function initSettingsUI() {
 	let clothSpacingSlider = select('#cloth-spacing-range').value(clothSpacing);
 	let clothSpacingInput = select('#cloth-spacing-input').value(clothSpacing);
 
-	clothSpacingSlider.mouseMoved(function() {
-		if (mouseIsPressed) {
-			clothSpacingInput.value(clothSpacingSlider.value());
-			clothSpacing = clothSpacingSlider.value();
-		}
+	clothSpacingSlider.changed(function() {
+		clothSpacingInput.value(clothSpacingSlider.value());
+		clothSpacing = clothSpacingSlider.value();
 	});
 	clothSpacingInput.changed(function() {
 		clothSpacingSlider.value(clothSpacingInput.value());
@@ -88,11 +78,9 @@ function initSettingsUI() {
 	let attachedPointsSlider = select('#attached-points-range').value(clothAttachPoints);
 	let attachedPointsInput = select('#attached-points-input').value(clothAttachPoints);
 
-	attachedPointsSlider.mouseMoved(function() {
-		if (mouseIsPressed) {
-			attachedPointsInput.value(attachedPointsSlider.value());
-			clothAttachPoints = attachedPointsSlider.value();
-		}
+	attachedPointsSlider.changed(function() {
+		attachedPointsInput.value(attachedPointsSlider.value());
+		clothAttachPoints = attachedPointsSlider.value();
 	});
 	attachedPointsInput.changed(function() {
 		attachedPointsSlider.value(attachedPointsInput.value());
@@ -103,11 +91,9 @@ function initSettingsUI() {
 	let constLengthSlider = select('#constraint-length-range').value(clothConstraintLength);
 	let constLengthInput = select('#constraint-length-input').value(clothConstraintLength);
 
-	constLengthSlider.mouseMoved(function() {
-		if (mouseIsPressed) {
-			constLengthInput.value(constLengthSlider.value());
-			clothConstraintLength = constLengthSlider.value();
-		}
+	constLengthSlider.changed(function() {
+		constLengthInput.value(constLengthSlider.value());
+		clothConstraintLength = constLengthSlider.value();
 	});
 	constLengthInput.changed(function() {
 		constLengthSlider.value(constLengthInput.value());
@@ -118,12 +104,10 @@ function initSettingsUI() {
 	let tearStrSlider = select('#tear-str-range').value(tearStr);
 	let tearStrInput = select('#tear-str-input').value(tearStr);
 
-	tearStrSlider.mouseMoved(function() {
-		if (mouseIsPressed) {
-			tearStrInput.value(tearStrSlider.value());
-			tearStr = tearStrSlider.value();
-			tearStrSq = tearStr * tearStr;
-		}
+	tearStrSlider.changed(function() {
+		tearStrInput.value(tearStrSlider.value());
+		tearStr = tearStrSlider.value();
+		tearStrSq = tearStr * tearStr;
 	});
 	tearStrInput.changed(function() {
 		tearStrSlider.value(tearStrInput.value());
