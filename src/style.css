@@ -69,7 +69,7 @@ html, body {
 	color: white;
 }
 
-#container-hider:hover {
+#container-hider:active {
 	color: orange;
 }
 

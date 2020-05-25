@@ -171,10 +171,14 @@ function initSettingsUI() {
 	});
 
 	let containerHider = select('#container-hider');
+	select('.inside').toggleClass('hidden');
+	containerHider.toggleClass('active');
 	containerHider.mousePressed(function() {
 		select('.inside').toggleClass('hidden');
-		if (containerHider.html() == 'Hide')
-			containerHider.html('Show');
+		containerHider.toggleClass('active');
+
+		if (containerHider.hasClass('active'))
+			containerHider.html('Show Controls');
 		else
 			containerHider.html('Hide');
 	});
