@@ -2,11 +2,8 @@
 function initSettingsUI() {
 
 	let settingsCont = select('.settings-container');
-	settingsCont.mouseOver(function() {
+	settingsCont.mousePressed(function() {
 		mouseInsideSketch = false;
-	});
-	settingsCont.mouseOut(function() {
-		mouseInsideSketch = true;
 	});
 
 	// Sliders and input

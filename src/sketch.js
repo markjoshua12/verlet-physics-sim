@@ -155,6 +155,7 @@ function draw() {
 		text('Gravity: ' + gravity.x + ', ' + gravity.y, 12, 24);
 		text('FPS: ' + frameRate(), 12, 38);
 		text('Delta: ' + deltaTime, 12, 50);
+		text('Dragging: ' + pointDragging, 12, 64);
 	}
 }
 
@@ -164,9 +165,7 @@ function mousePressed() {
 		mouseY < 0 || mouseY >= height)
 		return;
 
-	if (toolType == TTYPE_DRAG) {
-		pointDragging = true;
-	} else if (toolType == TTYPE_TRIANGLE) {
+	if (toolType == TTYPE_TRIANGLE) {
 		createTriangle(mouseX, mouseY, 25 + random(100));
 	} else if (toolType == TTYPE_SQUARE) {
 		createBox(mouseX, mouseY, 25 + random(100));
@@ -181,7 +180,19 @@ function mousePressed() {
 	// particles.push(p);
 }
 
+function mouseDragged() {
+	if (!mouseInsideSketch ||
+		mouseX < 0 || mouseX >= width ||
+		mouseY < 0 || mouseY >= height)
+		return;
+
+	if (toolType == TTYPE_DRAG) {
+		pointDragging = true;
+	}
+}
+
 function mouseReleased() {
+	mouseInsideSketch = true;
 	pointDragging = false;
 }
 
