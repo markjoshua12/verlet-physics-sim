@@ -9,7 +9,15 @@ class Physics {
 	}
 
 	detectCollision(body1, body2) {
+
+		if (body2.minBB.x > body1.maxBB.x ||
+			body2.maxBB.x < body1.minBB.x ||
+			body2.minBB.y > body1.maxBB.y ||
+			body2.maxBB.y < body1.minBB.y)
+			return false;
+
 		let minDist = 10000.0;
+		
 		for (let i = 0; i < body1.constraintCount + body2.constraintCount; i++) {
 			let c;
 
@@ -118,6 +126,8 @@ class Body {
 		this.vertices = [];
 		this.constraints = [];
 		this.center = createVector();
+		this.minBB = createVector();
+		this.maxBB = createVector();
 		this.min = 0;
 		this.max = 0;
 	}
@@ -137,6 +147,8 @@ class Body {
 			if (v.y < minY) minY = v.y;
 		}
 
+		this.minBB.set(minX, minY);
+		this.maxBB.set(maxX, maxY);
 		this.center.set((minX + maxX) * 0.5, (minY + maxY) * 0.5);
 	}
 
