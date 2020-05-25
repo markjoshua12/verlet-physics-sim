@@ -97,10 +97,10 @@ function draw() {
 	for (let i = 0; i < STEPS; i++) {
 		updateConstraints();
 
-		for (body1 of bodies) {
+		for (let body1 of bodies) {
 			body1.calculateBBox();
 
-			for (body2 of bodies) {
+			for (let body2 of bodies) {
 				if (body1 === body2)
 					continue;
 
@@ -138,7 +138,7 @@ function draw() {
 			let body = bodies[i];
 			fill((i * 10) % 255, (i * 5) % 255, (254 - i * 5) % 255);
 			beginShape();
-			for (point of body.vertices) {
+			for (let point of body.vertices) {
 				vertex(point.x, point.y);
 			}
 			endShape();
