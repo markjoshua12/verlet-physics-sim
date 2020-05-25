@@ -135,7 +135,8 @@ function initSettingsUI() {
 	});
 
 	let pauseBtn = select('#pause');
-	pauseBtn.mousePressed(function() {
+	pauseBtn.mousePressed(function(event) {
+		console.log(event);
 		if (isPaused)
 			loop();
 		else
@@ -175,26 +176,10 @@ function initSettingsUI() {
 	toolTypeButtons.forEach(function(e, i) {
 		if (i != toolType)
 			e.addClass('inactive');
-	});
-
-	let toolTypeDrag = toolTypeButtons[0];
-	toolTypeDrag.mousePressed(function() {
-		toolTypeButtons[toolType].addClass('inactive');
-		toolTypeDrag.removeClass('inactive');
-		toolType = TTYPE_DRAG;
-	});
-
-	let toolTypeTriangle = toolTypeButtons[1];
-	toolTypeTriangle.mousePressed(function() {
-		toolTypeButtons[toolType].addClass('inactive');
-		toolTypeTriangle.removeClass('inactive');
-		toolType = TTYPE_TRIANGLE;
-	});
-
-	let toolTypeSquare = toolTypeButtons[2];
-	toolTypeSquare.mousePressed(function() {
-		toolTypeButtons[toolType].addClass('inactive');
-		toolTypeSquare.removeClass('inactive');
-		toolType = TTYPE_SQUARE;
+		e.mousePressed(function() {
+			toolTypeButtons[toolType].addClass('inactive');
+			e.removeClass('inactive');
+			toolType = toolTypeButtons.indexOf(e);
+		});
 	});
 }
