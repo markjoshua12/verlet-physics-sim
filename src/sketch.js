@@ -23,7 +23,7 @@ var initGravityY = 0.1;
 var gravity = null;
 
 var pointDragging = false;
-var dragDist = 125;
+var dragDist = 150;
 var currP = null;
 var delta = null;
 
@@ -164,8 +164,10 @@ function mousePressed() {
 		mouseX < 0 || mouseX >= width ||
 		mouseY < 0 || mouseY >= height)
 		return;
-
-	if (toolType == TTYPE_TRIANGLE) {
+	
+	if (toolType == TTYPE_DRAG) {
+		pointDragging = true;
+	} else if (toolType == TTYPE_TRIANGLE) {
 		createTriangle(mouseX, mouseY, 25 + random(100));
 	} else if (toolType == TTYPE_SQUARE) {
 		createBox(mouseX, mouseY, 25 + random(100));
