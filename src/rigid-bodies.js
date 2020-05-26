@@ -27,7 +27,7 @@ class Physics {
 				c = body2.constraints[i - body1.constraintCount];
 
 			let axis = createVector(c.p1.y - c.p2.y, c.p2.x - c.p1.x);
-			axis = axis.normalize();
+			axis.normalize();
 
 			body1.projectToAxis(axis);
 			body2.projectToAxis(axis);
@@ -79,8 +79,8 @@ class Physics {
 	processCollision() {
 		let colVec = p5.Vector.mult(this.normal, this.depth);
 
-		this.vertex.x += colVec.x * 0.5;
-		this.vertex.y += colVec.y * 0.5;
+		this.vertex.x += colVec.x * this.vertex.invmass;
+		this.vertex.y += colVec.y * this.vertex.invmass;
 
 		let p1 = this.constraint.p1;
 		let p2 = this.constraint.p2;
@@ -96,18 +96,16 @@ class Physics {
 		let invT = 1.0 - T;
 		let lambda = 1.0 / (T * T + invT * invT);
 
-		let hcx = colVec.x * 0.5;
-		let hcy = colVec.y * 0.5;
-		let lcx = hcx * lambda;
-		let lcy = hcy * lambda;
+		let lcx = colVec.x * lambda;
+		let lcy = colVec.y * lambda;
 
-		p1.x -= lcx * invT;
-		p1.y -= lcy * invT;
-		p2.x -= lcx * T;
-		p2.y -= lcy * T;
+		p1.x -= lcx * invT * p1.invmass;
+		p1.y -= lcy * invT * p1.invmass;
+		p2.x -= lcx * T * p2.invmass;
+		p2.y -= lcy * T * p2.invmass;
 
-		this.vertex.x += hcx;
-		this.vertex.y += hcy;
+		this.vertex.x += colVec.x * this.vertex.invmass;
+		this.vertex.y += colVec.y * this.vertex.invmass;
 	}
 
 	static intervalDistance(minA, maxA, minB, maxB) {
