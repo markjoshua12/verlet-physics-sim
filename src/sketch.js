@@ -341,6 +341,7 @@ function constrainPoints() {
 		if (p.y < SIZE) {
 			p.y = SIZE;
 		} else if (p.y >= height - SIZE) {
+			p.x -= (p.y - height + SIZE) * (p.x - p.px) * this.physics.friction;
 			p.y = height - SIZE;
 		}
 	}

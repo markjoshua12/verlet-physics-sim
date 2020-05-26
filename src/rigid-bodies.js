@@ -6,6 +6,9 @@ class Physics {
 		this.constraint;
 		this.body;
 		this.vertex = createVector();
+		this.tangent = createVector();
+		this.relVel = createVector();
+		this.friction = 0.2;
 	}
 
 	detectCollision(body1, body2) {
@@ -106,6 +109,30 @@ class Physics {
 
 		this.vertex.x += colVec.x * this.vertex.invmass;
 		this.vertex.y += colVec.y * this.vertex.invmass;
+
+		// Friction
+		this.relVel.set(
+			this.vertex.x - this.vertex.px -
+			(p1.x + p2.x - p1.px - p2.px) * 0.5,
+			this.vertex.y - this.vertex.py -
+			(p1.y + p2.y - p1.py - p2.py) * 0.5);
+
+		this.tangent.set(-this.normal.y, this.normal.x);
+
+		let relTv = this.relVel.dot(this.tangent);
+		let relVelX = this.tangent.x * relTv;
+		let relVelY = this.tangent.y * relTv;
+
+		let lFrX = relVelX * this.friction * lambda;
+		let lFrY = relVelY * this.friction * lambda;
+
+		p1.px -= lFrX * invT * p1.invmass;
+		p1.py -= lFrY * invT * p1.invmass;
+		p2.px -= lFrX * T * p2.invmass;
+		p2.py -= lFrY * T * p2.invmass;
+
+		this.vertex.px += relVelX * this.friction * this.vertex.invmass;
+		this.vertex.py += relVelY * this.friction * this.vertex.invmass;
 	}
 
 	static intervalDistance(minA, maxA, minB, maxB) {
