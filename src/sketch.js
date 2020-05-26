@@ -58,7 +58,6 @@ function setup() {
 	let canvas = createCanvas(windowWidth, windowHeight);
 	canvas.parent("#sketch");
 	canvas.attribute('oncontextmenu', 'return false;');
-	print(toolType);
 	init();
 	initSettingsUI();
 }
@@ -127,10 +126,10 @@ function draw() {
 
 	stroke(100);
 	for (let x = 0; x < grid_w; x++) {
-	line(x * GRID_SIZE, 0, x * GRID_SIZE, height);
+		line(x * GRID_SIZE, 0, x * GRID_SIZE, height);
 	}
 	for (let y = 0; y < grid_h; y++) {
-	line(0, y * GRID_SIZE, width, y * GRID_SIZE);
+		line(0, y * GRID_SIZE, width, y * GRID_SIZE);
 	}
 	
 	if (drawFill) {
@@ -240,6 +239,7 @@ function getParticleAt(x, y) {
 		for (let y0 = cy - 1; y0 < cy + 1; y0++) {
 			if (x0 < 0 || x0 >= grid_w || y0 < 0 || y0 >= grid_h)
 				continue;
+
 			let cell = grid[x0 + y0 * grid_w];
 			for (let i = 0; i < cell.length; i++) {
 				let pDistX = (cell[i].x - x);
@@ -313,6 +313,7 @@ function updateConstraints() {
 				continue;
 			}
 		}
+		
 		let percent = ((dSq - c.lSq) *
 						 (c.p1.invmass + c.p2.invmass)) /
 						 dSq;
@@ -445,16 +446,16 @@ function createClothSim() {
 			p.px += random() * 5 - 2.5;
 			
 			if (x > 0) {
-			constraints.push(new Constraint(
-				particles[x - 1 + y * clothWidth],
-				p,
-				clothConstraintLength, false, true, tearMult));
+				constraints.push(new Constraint(
+					particles[x - 1 + y * clothWidth],
+					p,
+					clothConstraintLength, false, true, tearMult));
 			}
 			if (y > 0) {
-			constraints.push(new Constraint(
-				particles[x + (y - 1) * clothWidth],
-				p,
-				clothConstraintLength, false, true, tearMult));
+				constraints.push(new Constraint(
+					particles[x + (y - 1) * clothWidth],
+					p,
+					clothConstraintLength, false, true, tearMult));
 			} else {
 				if (y == 0 && x % clothAttachPoints == 0)
 					p.invmass = 0;
@@ -477,10 +478,10 @@ function createSpiderWebSim() {
 
 			if (particles.length > 0) {
 				if (j > 0) {
-				constraints.push(new Constraint(
-					particles[particles.length - 1],
-					p,
-					spacing));
+					constraints.push(new Constraint(
+						particles[particles.length - 1],
+						p,
+						spacing));
 				}
 				if (i > 0) {
 					constraints.push(new Constraint(
