@@ -49,17 +49,42 @@ let webSize = 200;
 let webSpacing = 12;
 let angleStep = 0.5;
 
-let canTear = false;
 let tearMult = 5;
 let tearStr = clothConstraintLength * tearMult;
 let tearStrSq = tearStr * tearStr;
+
+let settings = {
+	steps: 4,
+	canTear: false,
+	toolType: TTYPE_DRAG,
+	gravityX: 0,
+	gravityY: 0.1,
+	clothWidth: 25,
+	clothHeight: 20,
+	clothSpacing: 16,
+	clothLength: 20,
+	pointEvery: 1,
+	tearStrength: clothSpacing * tearMult,
+	drawShapeFill: true,
+	drawPoints: false,
+	showDebugText: false,
+	isPaused: false,
+	reset: function() {
+		init();
+		if (isPaused)
+			redraw();
+	}
+}
+
+let s = settings;
 
 function setup() {
 	let canvas = createCanvas(windowWidth, windowHeight);
 	canvas.parent("#sketch");
 	canvas.attribute('oncontextmenu', 'return false;');
 	init();
-	initSettingsUI();
+	// initSettingsUI();
+	initDatGUI();
 }
 
 function init() {
@@ -68,10 +93,8 @@ function init() {
 	constraints = [];
 	bodies = [];
 	physics = new Physics();
-
-	gravity = createVector(initGravityX, initGravityY);
 	
-	clothXMargin = (width - (clothWidth * clothSpacing)) / 2;
+	clothXMargin = (width - (s.clothWidth * s.clothSpacing)) / 2;
 	
 	// createSpiderWebSim();
 	createClothSim();
@@ -93,7 +116,7 @@ function draw() {
 	background(125);
 	
 	updateParticles();
-	for (let i = 0; i < STEPS; i++) {
+	for (let i = 0; i < s.steps; i++) {
 		updateConstraints();
 
 		for (let body1 of bodies) {
@@ -153,17 +176,17 @@ function draw() {
 	noStroke();
 
 	// Draw the points
-	if (drawPoints) {
+	if (s.drawPoints) {
 		fill(255, 255, 0);
 		for (let i = 0; i < particles.length; i++) {
 			rect(particles[i].x - SIZE_D2, particles[i].y - SIZE_D2,  SIZE, SIZE);
 		}
 	}
 
-	if (showDebugText) {
+	if (s.showDebugText) {
 		fill(255);
 		text('Particles: ' + particles.length + ' | Constraints: ' + constraints.length, 12, 12);
-		text('Gravity: ' + gravity.x + ', ' + gravity.y, 12, 24);
+		text('Gravity: ' + s.gravityX + ', ' + s.gravityY, 12, 24);
 		text('FPS: ' + frameRate(), 12, 38);
 		text('Delta: ' + deltaTime, 12, 50);
 		text('Dragging: ' + pointDragging, 12, 64);
@@ -176,15 +199,15 @@ function mousePressed() {
 		mouseY < 0 || mouseY >= height)
 		return;
 	
-	if (toolType == TTYPE_DRAG) {
+	if (s.toolType == TTYPE_DRAG) {
 		pointDragging = true;
-	} else if (toolType == TTYPE_TRIANGLE) {
+	} else if (s.toolType == TTYPE_TRIANGLE) {
 		createTriangle(mouseX, mouseY, 25 + random(100));
-	} else if (toolType == TTYPE_SQUARE) {
+	} else if (s.toolType == TTYPE_SQUARE) {
 		createBox(mouseX, mouseY, 25 + random(100));
 	}
 
-	if (isPaused)
+	if (s.isPaused)
 		redraw();
 	// let p = new Particle(mouseX, mouseY);
 	// p.px += random() * 2 - 1;
@@ -199,7 +222,7 @@ function mouseDragged() {
 		mouseY < 0 || mouseY >= height)
 		return;
 
-	if (toolType == TTYPE_DRAG) {
+	if (s.toolType == TTYPE_DRAG) {
 		pointDragging = true;
 	}
 }
@@ -259,8 +282,8 @@ function updateParticles() {
 		let old_y = p.y;
 		
 		if (p.invmass > 0) {
-			p.x += gravity.x;
-			p.y += gravity.y;
+			p.x += s.gravityX;
+			p.y += s.gravityY;
 		
 			p.x += (p.x - p.px);
 			p.y += (p.y - p.py);
@@ -287,7 +310,7 @@ function updateConstraints() {
 		// let d = Math.sqrt((dx * dx) + (dy * dy));
 		// if (!c.pushing && d < c.l)
 		// 	continue;
-		// if (canTear) {
+		// if (s.canTear) {
 			// let tearStr = c.l * tearMult;
 			// if (d > tearStr) {
 			// 	constraints[i] = constraints[constraints.length - 1];
@@ -304,7 +327,7 @@ function updateConstraints() {
 		let dSq = (dx * dx) + (dy * dy);
 		if (!c.pushing && dSq < c.lSq)
 			continue;
-		if (canTear && c.canTear) {
+		if (s.canTear && c.canTear) {
 			// let tearStrSq = c.lSq * tearMult;
 			if (dSq > tearStrSq) {
 				constraints[i] = constraints[constraints.length - 1];
@@ -440,25 +463,25 @@ function createBox(x, y, size) {
 
 
 function createClothSim() {
-	for (let y = 0; y < clothHeight; y += 1) {
-		for (let x = 0; x < clothWidth; x += 1) {
-			let p = new Particle(x * clothSpacing + clothXMargin,
+	for (let y = 0; y < s.clothHeight; y += 1) {
+		for (let x = 0; x < s.clothWidth; x += 1) {
+			let p = new Particle(x * s.clothSpacing + clothXMargin,
 								y + 50);
 			p.px += random() * 5 - 2.5;
 			
 			if (x > 0) {
 				constraints.push(new Constraint(
-					particles[x - 1 + y * clothWidth],
+					particles[x - 1 + y * s.clothWidth],
 					p,
-					clothConstraintLength, false, true, tearMult));
+					s.clothLength, false, true, tearMult));
 			}
 			if (y > 0) {
 				constraints.push(new Constraint(
-					particles[x + (y - 1) * clothWidth],
+					particles[x + (y - 1) * s.clothWidth],
 					p,
-					clothConstraintLength, false, true, tearMult));
+					s.clothLength, false, true, tearMult));
 			} else {
-				if (y == 0 && x % clothAttachPoints == 0)
+				if (y == 0 && x % s.pointEvery == 0)
 					p.invmass = 0;
 			}
 			particles.push(p);

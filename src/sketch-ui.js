@@ -183,3 +183,43 @@ function initSettingsUI() {
 		});
 	});
 }
+
+function initDatGUI() {
+	let gui = new dat.GUI();
+
+	gui.add(s, 'toolType', { 'Drag': 0, 'Create Triangle': 1, 'Create Square': 2});
+
+	let grav = gui.addFolder('Gravity');
+	grav.add(s, 'gravityX', -10, 10);
+	grav.add(s, 'gravityY', -10, 10);
+
+	let clo = gui.addFolder('Cloth (Applies on reset)');
+	clo.add(s, 'clothWidth', 0, 200).step(1);
+	clo.add(s, 'clothHeight', 0, 200).step(1);
+	clo.add(s, 'clothSpacing', 1, 100).step(1);
+	clo.add(s, 'clothLength', 1, 100).step(1);
+	clo.add(s, 'pointEvery', 0, 100).step(1);
+
+	let t = gui.addFolder('Tearing');
+	t.add(s, 'tearStrength', 0, 500).step(1);
+	t.add(s, 'canTear');
+	
+	let fdb = gui.addFolder('Graphics');
+	fdb.add(s, 'drawShapeFill');
+	fdb.add(s, 'drawPoints');
+	fdb.add(s, 'showDebugText');
+
+	fdb.close();
+
+	let op = gui.addFolder('Options');
+	op.add(s, 'steps', 1, 16).step(1);
+	let p = op.add(s, 'isPaused', 'Paused');
+	op.add(s, 'reset', 'Reset');
+
+	p.onChange(function(val) {
+		if (val)
+			noLoop();
+		else
+			loop();
+	});
+}
